@@ -3,11 +3,11 @@ import sys, os, time, signal
 import sqlite3, datetime
 
 def socket_command(value):
+
     if (value == 1):
         cmd = '/home/pi/work/rfoutlet.git/codesend 1054003'
     else:
         cmd = '/home/pi/work/rfoutlet.git/codesend 1054012'
-
     os.system(cmd)
     notification = "/bin/bash /home/pi/python/notify.sh"
     os.system(notification)
@@ -30,11 +30,13 @@ def sig_handler(signal, frame):
 
 if __name__ == '__main__':
 
+    #TODO: daemonize (double fork, start/stop/restart)
     signal.signal(signal.SIGINT, sig_handler)
     socket_status = socket_command(0)
     val = 0
 
     # database init
+    #TODO: add power switch status to the database
     conn = sqlite3.connect('beer_machine.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS fermentation_temp
@@ -61,11 +63,11 @@ if __name__ == '__main__':
         conn.close()
 
         # adjust temperature with socket
+        # TODO: use pid
         if temp > 20.5:
             val = 1
         if temp < 20:
             val = 0
-
         if (val != socket_status):
             print "switching power socket !"
             socket_status = socket_command(val);
