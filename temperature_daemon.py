@@ -2,7 +2,13 @@
 import sys, os, time, signal
 import sqlite3, datetime
 
-
+def socket_command(value):
+    if (value == 1):
+        cmd = '/home/pi/work/rfoutlet.git/codesend 1054003'
+    else:
+        cmd = '/home/pi/work/rfoutlet.git/codesend 1054012'
+    os.system(cmd)
+    return value
 
 def dump_db():
 
@@ -22,6 +28,7 @@ def sig_handler(signal, frame):
 if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, sig_handler)
+    socket_status = socket_command(0)
 
     # database init
     conn = sqlite3.connect('beer_machine.db')
@@ -48,5 +55,15 @@ if __name__ == '__main__':
         c.execute("INSERT INTO fermentation_temp VALUES (?, ?)", (datetime.datetime.now(), temp))
         conn.commit()
         conn.close()
+
+        # adjust temperature with socket
+        if temp > 20.5:
+            val = 1
+        if temp < 20:
+            val = 0
+
+        if (val != socket_status):
+            print "switching power socket !"
+            socket_status = socket_command(val);
 
         time.sleep(30)
