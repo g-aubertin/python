@@ -7,7 +7,10 @@ def socket_command(value):
         cmd = '/home/pi/work/rfoutlet.git/codesend 1054003'
     else:
         cmd = '/home/pi/work/rfoutlet.git/codesend 1054012'
+
     os.system(cmd)
+    notification = "/bin/bash /home/pi/python/notify.sh"
+    os.system(notification)
     return value
 
 def dump_db():
@@ -29,6 +32,7 @@ if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, sig_handler)
     socket_status = socket_command(0)
+    val = 0
 
     # database init
     conn = sqlite3.connect('beer_machine.db')
