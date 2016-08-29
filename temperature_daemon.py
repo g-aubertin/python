@@ -58,6 +58,12 @@ if __name__ == '__main__':
         print "configuration file needed"
         sys.exit(0)
 
+    # check if 433Mhz tools are compiled
+    if os.path.exists("RFSource/codesend") == False:
+        print "433Mhz tools are not compiled. exiting.."
+        sys.exit(0)
+
+    # read configuration file and set variables
     get_config(sys.argv[1])
 
     # database init
@@ -87,11 +93,8 @@ if __name__ == '__main__':
         # adjust temperature with socket
         # TODO: use pid
         if temp > 20.5:
-            command = SOCKET_CODE_ON
+            socket_status = socket_command(SOCKET_CODE_ON);
         if temp < 20:
-            command = SOCKET_CODE_OFF
-        if (command != socket_status):
-            print "switching power socket !"
-            socket_status = socket_command(command);
+            socket_status = socket_command(SOCKET_CODE_OFF);
 
         time.sleep(30)
