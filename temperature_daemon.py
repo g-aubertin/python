@@ -8,6 +8,7 @@ W1_PATH = ""
 
 def get_config(path):
 
+    global W1_PATH, SOCKET_CODE_ON, SOCKET_CODE_OFF
     fd_config = open(path, 'r')
     for line in fd_config.readlines():
         line = " ".join(line.split())
