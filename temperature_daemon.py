@@ -4,10 +4,40 @@ import sqlite3, datetime
 
 SOCKET_CODE_ON = 0
 SOCKET_CODE_OFF = 0
+W1_PATH = ""
+
+def get_config(path):
+
+    fd_config = open(path, 'r')
+    for line in fd_config.readlines():
+        line = " ".join(line.split())
+        line = line.split(" ")
+        if (line[0] == "W1_PATH"):
+            print "W1_PATH :", line[1]
+            W1_PATH = line[1]
+        if (line[0] == "SOCKET_CODE_ON"):
+            print "SOCKET_CODE_ON :", line[1]
+            SOCKET_CODE_ON = int(line[1])
+        if (line[0] == "SOCKET_CODE_OFF"):
+            print "SOCKET_CODE_OFF :", line[1]
+            SOCKET_CODE_OFF = int(line[1])
+    fd_config.close()
+
+def read_temperature():
+
+    # read file from 1-wire sysfs and parse result
+    fd = open(W1_PATH, "r")
+    temp_str = fd.read()
+    fd.close()
+    temp_str = temp_str.split()
+    temp_str = temp_str[-1].translate(None, " t=")
+    temp_flt = float(temp_str) / 1000
+    print "current temperature :", temp_flt
+    return temp_flt
 
 def socket_command(value):
 
-    cmd = "/home/pi/work/rfoutlet.git/codesend %d" % value
+    cmd = "RFSource/codesend %d" % value
     os.system(cmd)
     if value == SOCKET_CODE_ON:
         return 1
@@ -24,24 +54,11 @@ def dump_db():
 
 if __name__ == '__main__':
 
-    # get configuration
-    if (len(sys.argv) != 2):
+    if (len(sys.argv) < 2):
         print "configuration file needed"
         sys.exit(0)
 
-    fd_config = open(sys.argv[1], 'r')
-    for line in fd_config.readlines():
-        line = " ".join(line.split())
-        line = line.split(" ")
-        if (line[0] == "W1_PATH"):
-            print "W1_PATH :", line[1]
-            W1_PATH = line[1]
-        if (line[0] == "SOCKET_CODE_ON"):
-            print "SOCKET_CODE_ON :", line[1]
-            SOCKET_CODE_ON = int(line[1])
-        if (line[0] == "SOCKET_CODE_OFF"):
-            print "SOCKET_CODE_OFF :", line[1]
-            SOCKET_CODE_OFF = int(line[1])
+    get_config(sys.argv[1])
 
     # database init
     conn = sqlite3.connect('beer_machine.db')
@@ -56,14 +73,8 @@ if __name__ == '__main__':
     # infinite loop to do stuff
     while True:
 
-        # read file from 1-wire sysfs and extract temperature
-        fd = open(W1_PATH, "r")
-        temp_str = fd.read()
-        fd.close()
-        temp_str = temp_str.split()
-        temp_str = temp_str[-1].translate(None, " t=")
-        temp = float(temp_str) / 1000
-        print "current temperature :", temp
+        # get temperature
+        temp = read_temperature()
 
         # store in db
         conn = sqlite3.connect('beer_machine.db')
