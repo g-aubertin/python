@@ -1,1 +1,7 @@
 *.db
+*.ini*
+!config.ini
+*.o
+RFSource/*
+!RFSource/*.cpp
+!RFSource/Makefile
