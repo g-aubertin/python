@@ -1,6 +1,8 @@
+#!/usr/bin/env python
 
 import sys, os, time, signal
 import sqlite3, datetime
+import webui
 
 SOCKET_CODE_ON = 0
 SOCKET_CODE_OFF = 0
@@ -89,6 +91,9 @@ if __name__ == '__main__':
         c.execute("INSERT INTO fermentation_temp VALUES (?, ?, ?)", (datetime.datetime.now(), temp,
                                                                      socket_status))
         conn.commit()
+
+        # refresh web page
+        webui.refresh(conn)
         conn.close()
 
         # adjust temperature with socket
