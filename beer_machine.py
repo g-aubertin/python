@@ -7,6 +7,9 @@ import webui
 SOCKET_CODE_ON = 0
 SOCKET_CODE_OFF = 0
 W1_PATH = ""
+DURATION = 0
+TEMP = 0
+NAME = ""
 
 def get_config(path):
 
@@ -24,6 +27,15 @@ def get_config(path):
         if (line[0] == "SOCKET_CODE_OFF"):
             print "SOCKET_CODE_OFF :", line[1]
             SOCKET_CODE_OFF = int(line[1])
+        if (line[0] == "DURATION"):
+            print "DURATION :", line[1]
+            DURATION = int(line[1])
+        if (line[0] == "TEMP"):
+            print "TEMP :", line[1]
+            TEMP = int(line[1])
+        if (line[0] == "NAME"):
+            print "NAME :", line[1]
+            NAME = int(line[1])
     fd_config.close()
 
 def read_temperature():
