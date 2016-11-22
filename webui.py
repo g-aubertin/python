@@ -12,16 +12,16 @@ def print_db(connection, index):
 
 def refresh(connection):
 
-    index = open('index.html', 'w')
+    index = open('/opt/beer_machine/index.html', 'w')
 
-    fd_template = open("web/template.html")
+    fd_template = open("/opt/beer_machine/web/template.html")
     html_template = fd_template.read().splitlines()
     for line in html_template:
         index.write(line + "\n")
 
     print_db(connection, index)
 
-    fd_template = open("web/template_end.html")
+    fd_template = open("/opt/beer_machine/web/template_end.html")
     html_template = fd_template.read().splitlines()
     for line in html_template:
         index.write(line + "\n")

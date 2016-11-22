@@ -52,7 +52,7 @@ def read_temperature():
 
 def socket_command(value):
 
-    cmd = "RFSource/codesend %d" % value
+    cmd = "/opt/beer_machine/RFSource/codesend %d" % value
     os.system(cmd)
     if value == SOCKET_CODE_ON:
         return 1
@@ -61,7 +61,7 @@ def socket_command(value):
 
 def dump_db():
 
-    conn = sqlite3.connect('beer_machine.db')
+    conn = sqlite3.connect('/opt/beer_machine/beer_machine.db')
     c = conn.cursor()
     c.execute("SELECT * FROM fermentation_temp")
     for data in c.fetchall():
@@ -74,7 +74,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     # check if 433Mhz tools are compiled
-    if os.path.exists("RFSource/codesend") == False:
+    if os.path.exists("/opt/beer_machine/RFSource/codesend") == False:
         print "433Mhz tools are not compiled. exiting.."
         sys.exit(0)
 
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     get_config(sys.argv[1])
 
     # database init
-    conn = sqlite3.connect('beer_machine.db')
+    conn = sqlite3.connect('/opt/beer_machine/beer_machine.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS fermentation_temp
              (date text, temperature float, switch int)''')
@@ -98,7 +98,7 @@ if __name__ == '__main__':
         temp = read_temperature()
 
         # store in db
-        conn = sqlite3.connect('beer_machine.db')
+        conn = sqlite3.connect('/opt/beer_machine/beer_machine.db')
         c = conn.cursor()
         c.execute("INSERT INTO fermentation_temp VALUES (?, ?, ?)", (datetime.datetime.now(), temp,
                                                                      socket_status))
