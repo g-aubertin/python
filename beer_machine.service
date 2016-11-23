@@ -5,7 +5,7 @@ After=tlp-init.service
 [Service]
 Type=oneshot
 RemainAfterExit=no
-ExecStart=/usr/bin/python /home/pi/python.git/beer_machine.py myconfig.ini
+ExecStart=/usr/bin/python /opt/beer_machine/beer_machine.py /opt/beer_machine/config.ini
 
 [Install]
 WantedBy=multi-user.target
