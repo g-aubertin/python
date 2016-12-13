@@ -1,77 +1,66 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <wiringPi.h>
 
 #define PULSE_LENGTH 189
+#define DEFAULT_PIN 0
 
-/* protocol (times pulse length) : 
+/* based on RCSwitch library for arduino.
+ * protocol (to multiply by pulse length):
  * 0 : 1 high, 3 low
  * 1 : 3 high, 1 low
- */  
+ *
+ * we send the code 10 times due to low quality / high noise
+ * often seen with low coast 433Mhz RF receiver
+ */
 
-char *num2char(unsigned int num)
-{
-	char *code_table;
-	int i;
-
-	code_table = malloc(32 * sizeof(char));
-
-	if (code_table == NULL) {
-		printf("malloc error\n");
-		return NULL;
-	}
-
-	printf("original value : %d \n", num);
-
-	for (i = 31; i >= 0 ; i--){
-		code_table[i] = num & 1;
-		num = num >> 1;
-	}
-
-	printf("binary value : ");
-	for (i = 0; i < 32 ; i++)
-		printf("%d", code_table[i]);
-	printf("\n");
-
-	return code_table;
-}
-
-void send_code(char *code_table)
+void send_code(int code, int length)
 {
 	int i;
+	int mask = 1 << (length - 1);
 
-	/* set level low before sending code */
-
-	digitalWrite(DEFAULT_PIN, LOW);
-	delayMicroseconds(500);
-
-	for (i = 31; i >= 0 ; i--) {
-		if (code_table[i] == 1) {			
+	for (i = 0; i < length ; i++) {
+		if ((code & mask) != 0) {
 			digitalWrite(DEFAULT_PIN, HIGH);
 			delayMicroseconds(PULSE_LENGTH * 3);
-			digitalWrite(DEFAULT_PIN, HIGH);
+			digitalWrite(DEFAULT_PIN, LOW);
 			delayMicroseconds(PULSE_LENGTH * 1);
 		} else {
 			digitalWrite(DEFAULT_PIN, HIGH);
 			delayMicroseconds(PULSE_LENGTH * 1);
-			digitalWrite(DEFAULT_PIN, HIGH);
+			digitalWrite(DEFAULT_PIN, LOW);
 			delayMicroseconds(PULSE_LENGTH * 3);
 		}
+		mask = mask >> 1;
 	}
+
+	/* end with a 0 */
+	digitalWrite(DEFAULT_PIN, HIGH);
+	delayMicroseconds(PULSE_LENGTH * 1);
+	digitalWrite(DEFAULT_PIN, LOW);
+	delayMicroseconds(PULSE_LENGTH * 3);
 }
 
 void main(int argc, char *argv[])
 {
-	char *table;
-	int gpio = DEFAULT_PIN;
+	int *table;
+	int i, code, length;
+
+	if (argc != 3) {
+		printf("error in arguments. usage : 433_send <code> <binary length> \n");
+		return;
+	}
+
+	code = atoi(argv[1]);
+	length = atoi(argv[2]);
 
 	if (wiringPiSetup () == -1) {
-		return -1;
+		return;
 	}
 	pinMode(DEFAULT_PIN, OUTPUT);
 
-	/* conversion to char table */
-	table = num2char(256703);
-	send_code(table);
+	for (i = 0; i < 9; i++) {
+		send_code(code, length);
+		delayMicroseconds(10000);
+	}
 }
