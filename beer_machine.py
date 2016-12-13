@@ -35,7 +35,7 @@ def get_config(path):
             TEMP = int(line[1])
         if (line[0] == "NAME"):
             print "NAME :", line[1]
-            NAME = int(line[1])
+            NAME = line[1]
     fd_config.close()
 
 def read_temperature():
@@ -52,7 +52,7 @@ def read_temperature():
 
 def socket_command(value):
 
-    cmd = "/opt/beer_machine/RFSource/codesend %d" % value
+    cmd = "/opt/beer_machine/433_send %d %d" % (value, 24)
     os.system(cmd)
     if value == SOCKET_CODE_ON:
         return 1
@@ -74,8 +74,8 @@ if __name__ == '__main__':
         sys.exit(0)
 
     # check if 433Mhz tools are compiled
-    if os.path.exists("/opt/beer_machine/RFSource/codesend") == False:
-        print "433Mhz tools are not compiled. exiting.."
+    if os.path.exists("/opt/beer_machine/433_send") == False:
+        print "433_send tool is not compiled. exiting.."
         sys.exit(0)
 
     # read configuration file and set variables

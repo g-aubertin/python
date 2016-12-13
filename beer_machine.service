@@ -1,6 +1,6 @@
 [Unit]
 Description=Beer Machine daemon
-After=tlp-init.service
+
 
 [Service]
 Type=oneshot

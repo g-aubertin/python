@@ -2,7 +2,7 @@
 default: tools
 
 tools:
-	$(MAKE) -C RFSource/
+	gcc 433_send.c -o 433_send -lwiringPi
 
 install: tools
 	# create directories
@@ -10,15 +10,16 @@ install: tools
 	mkdir /opt/beer_machine/web
 
 	# copy binaries
-	cp RFSource/codesend  /opt/beer_machine
+	cp 433_send  /opt/beer_machine/
 	cp beer_machine.py /opt/beer_machine
 	cp webui.py /opt/beer_machine
+	cp config.ini /opt/beer_machine
 
 	# systemd service
 	cp beer_machine.service /lib/systemd/system/
 
 	# web folder
-	cp -a web/ /opt/beer_machine/web
+	cp -a web/* /opt/beer_machine/web
 
 	# symlinks for webpage
 	rm /var/www/html/index.html
